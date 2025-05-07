@@ -1,0 +1,326 @@
+---
+title: "OBDS_R_week_1_day_2_afternoon"
+author: "Laila Latifi"
+date: "2025-05-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Sorting Vectors
+sort function only for vectors.
+To sort data frames, need to use order and index (including , to do by rows).
+Ex. ToothGrowth[c(order(ToothGrowth$len) , )]
+In tidyverse, built in functions to get around this and sort matrix.
+
+
+```{r}
+data(ToothGrowth)
+ToothGrowth[c(order(ToothGrowth$len), )]
+```
+
+
+# Exercise - Sorting Data Frames
+
+Load the airquality data set.
+```{r}
+data("airquality")
+```
+
+Open the help page for this data set.
+```{r}
+?airquality
+```
+
+Examine the data set.
+```{r}
+str(airquality)
+head(airquality)
+View(airquality)
+```
+
+Display the column names of the airquality data frame.
+```{r}
+colnames(airquality)
+```
+
+Sort the data frame by increasing value in the Ozone column.
+```{r}
+order(airquality$Ozone)
+airquality[order(airquality$Ozone), ]
+```
+Note, NAs are all at the end.
+
+Sort the data frame by Month in increasing order and Temp in decreasing order.
+```{r}
+# inc_month <- order(airquality$Month)
+# dec_temp <- order(airquality$Temp, decreasing = TRUE)
+# airquality[inc_month, ]
+?order
+
+order(airquality$Month, airquality$Temp, decreasing = c(FALSE, TRUE))
+airquality[order(airquality$Month, airquality$Temp, decreasing = c(FALSE, TRUE)), ]
+
+airquality_month_temp_sorted <- airquality[
+  order(airquality$Month, airquality$Temp, 
+  decreasing = c(FALSE, TRUE)), ]
+
+View(airquality_month_temp_sorted)
+```
+
+Write the latest sorted data frame to a text file format of your choice.
+```{r}
+write.table(airquality_month_temp_sorted,
+  file = "airquality_month_temp_sorted.tsv",
+  sep = "\t", quote = FALSE)
+
+read.delim("airquality_month_temp_sorted.tsv")
+```
+
+
+
+# Exercise - Merging Data Frames
+
+Run the code below to create two data frames.
+```{r}
+buildings <- data.frame(
+  site = c(1, 2, 3),
+  name = c("b1", "b2", "b3"))
+
+survey_data <- data.frame(
+  survey = c("A", "A", "A", "B", "B", "B"),
+  location = c(1, 2, 3, 2, 3, 1),
+  efficiency = c(51, 64, 70, 71, 80, 58))
+```
+
+What is the shared information in these two data frames?
+```{r}
+str(buildings)
+str(survey_data)
+
+View(buildings)
+View(survey_data)
+```
+The buildings$site and survey_data$location are the same information. 
+
+Use the merge() function to combine the two data frames by the shared 
+information into a new data frame called buildings_survey.
+```{r}
+buildings_survey <- merge(
+  x = buildings, 
+  y = survey_data, 
+  by.x = "site", 
+  by.y = "location")
+
+View(buildings_survey)
+```
+
+
+
+# Exercise - Summarising Groups of Data
+
+Compute the mean of each numeric column each month in the airquality data frame 
+using aggregate(). Make sure NA values are removed.
+```{r}
+str(airquality)
+
+aggregate(x = airquality, 
+          by = list(month = airquality$Month), 
+          FUN = mean, 
+          na.rm = TRUE)
+
+```
+
+Compute the mean of the Solar.R column each month. Make sure the grouping 
+column is called Month in the return value. Make sure NA values are removed.
+```{r}
+aggregate(x = airquality$Solar.R, 
+          by = list(Month = airquality$Month), 
+          FUN = mean, 
+          na.rm = TRUE)
+
+# Can also write with c()
+aggregate(x = airquality[, c("Solar.R", "Temp")], 
+          by = list(Month = airquality$Month), 
+          FUN = mean, 
+          na.rm = TRUE)
+```
+
+
+
+# User Defined Functions
+
+Message is useful for knowing what your function is doing at a given point in
+time will it is running, particularly if the function takes a long time to run.
+Message doesn't impact the output.
+
+... means function is accepting extra argument, but not telling you what they 
+are. Allows function to capture information from you and pass it down to the 
+function. 
+Ex. na.rm = TRUE in aggregate function above.
+na.rm not an argument in aggregate function, but we still used it to remove
+NAs and then pass the remaining information through the rest of the function
+to get the mean.
+
+As on slide, can give input values without specifying (i.e. writing 1, 2, 3 
+instead of apples = 1, pears = 2, oranges = 3).
+Can set objects to 0 by default so function will still run even if all 
+possible values are not given.
+
+
+
+# Exercise - Writing a Function
+
+Write a function to calculate the hypotenuse of a triangle given the length of 
+the other two sides.
+```{r}
+hypotenuse_length <- function(a, b) {
+  hypotenuse <- sqrt(a^2 + b^2)
+  return(hypotenuse)
+}
+```
+
+Run the function you have created with different values.
+```{r}
+hypotenuse_length(2, 2)
+hypotenuse_length(3, 4)
+
+hypotenuse_length(a = 3, b = 4)
+hypotenuse_length(b = 3, a = 4)
+
+hypotenuse_length(1)
+hypotenuse_length(b = 1)
+```
+
+The variables a function defines only exist while the funciton is running. 
+Objects a funciton creates internally are discarded afterwards. Only the 
+output of the function stays. R "scoping".
+
+
+
+# Applying Functions
+
+apply(), MARGIN = 1 for row or 2 for column
+Ex. Given under "by row" on slide is same as rowmean() function we used earlier.
+
+sapply() great to use interactively to simplify, but not good to use as a 
+developer as letting R do things automatically can lead to unforseen mistakes.
+
+vapply() faster since it knows how to allocate memory ahead of time due to you
+specifiying size of inputs and outputs. 
+numeric(1) means one numeric value.
+
+
+
+# Exercise - Apply
+
+Create a vector of integers from 1 to 10.
+```{r}
+int_vector <- 1:10
+int_vector
+```
+
+Compute the log2 of each value in the vector using either lapply() or sapply().
+```{r}
+?log2 
+
+lapply(X = int_vector, FUN = log2)
+sapply(X = int_vector, FUN = log2)
+
+# Or
+lapply(int_vector, log2)
+sapply(int_vector, log2)
+```
+
+Compare the outputs of lapply() and sapply() in the previous step.
+lapply() gives everything separately as lists, but sapply() combines all the 
+outputs into a vector.
+
+Create a list of four elements, each element being a vector of type either 
+numeric or logical.
+```{r}
+ex_list <- list(1:12, c(TRUE, TRUE), 17:20, c(FALSE, FALSE))
+```
+
+Compute the sum of each vector in the list using either lapply() or sapply().
+```{r}
+lapply(X = ex_list, FUN = sum)
+sapply(X = ex_list, FUN = sum)
+```
+
+Use sapply() on the list that you created in part 2, to repeat each element of each vector three times. i.e., 1, 2, 3 should become 1, 1, 1, 2, 2, 2, 3, 3, 3
+```{r}
+?rep
+sapply(X = ex_list, FUN = rep, each = 3)
+```
+
+
+
+# Loops
+
+Will use for loops 99% of the time in bioinformatics.
+
+
+
+# Exercise - Loops and Conditions
+
+Write a for loop that iterates over the integers 1 to 7 and prints the number 
+raised to the power of three.
+```{r}
+for (i in 1:7) {
+  print(i^3)
+}
+```
+
+Write a for loop that iterates over the names of the columns in the built in 
+data set iris and prints each column name together with the number of 
+characters in that column name.
+
+Example output: Sepal.Length: 12
+Hint: use the functions print(), paste0(), and nchar().
+Remember to read the help page of each function to learn more about them.
+
+My attempt
+```{r}
+?nchar()
+?paste0
+
+data("iris")
+
+head(iris)
+str(iris)
+colnames(iris)
+
+# Creating character vectors from the column names
+paste0(colnames(iris))
+colname_vector <- paste0(colnames(iris))
+
+# Count the number of characters in each object in vector
+nchar((paste0(colnames(iris))), type = "chars")
+
+
+for (i in colname_vector) {
+  print(i)
+}
+```
+
+Solution
+```{r}
+data("iris")
+
+for (column_name in colnames(iris)) {
+  # print(column_name)
+  # print(nchar(column_name))
+  print(paste0(column_name, ": ", nchar(column_name)))
+}
+```
+
+Use the ifelse() function to print the name of colours that are made up of four 
+characters in the vector my_colours below.
+```{r}
+my_colours <- c("red", "orange", "purple", "yellow", "pink", "blue")
+
+ifelse(test = nchar(my_colours) == 4, yes = my_colours, no = "")
+```
