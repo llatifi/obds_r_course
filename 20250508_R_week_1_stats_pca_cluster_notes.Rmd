@@ -1,0 +1,70 @@
+---
+title: "20250508_R_week_1_day_3"
+author: "Laila Latifi"
+date: "2025-05-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Statistics
+RNA sequencing uses negative binomial distribution
+
+
+
+# Dimensionality Reduction and Clustering
+With feature selection, not everything can be determined in an unsupervised
+manner; may require some manual curation.
+
+Not possible to reduce dimensions without loosing some information; but, aim to
+preserve as much of the variation as possible.
+
+Gene expression not linear. PCA not perfect for it, but a good starting point.
+
+PCA, some level of variance does not necessarily mean that they are 
+biologically related, although they may influence the data equally.
+
+PCA itself doesn't reduce dimensionality. User has to select which principle
+components explain the variation that they care about.
+
+PCA works by searching for most variance first and assigning to PC1, then PC2, 
+etc. Positive and negative values both important; positive/neagative indicates
+direction of vector, and absolute value is importance.
+
+
+
+# Non-linear dimensionality reduction techniques
+t-SNE only cares about similiarity. Preserves relationships with local 
+neighbors well, but does not do a good job of reflecting global patterns.
+
+Trial and error and using what other people have previsouly done to 
+determine best method for your data.
+
+UMAP similar to t-SNE, but more sensitive to global data.
+
+The longer you let t-SNE/UMAP run, as in the number of steps, the more accurate
+the output is. However, it takes longer, and at a certain point the output
+stops changing in any meaningful way.
+
+
+
+# Clustering
+Seeing group of points together in t-SNE/UMAP does not formally necessarily
+mean that they're a cluster. Visually vs. functionally a cluster.
+
+Run initial clustering, analyse to understand if clusters are biologically
+different, if not, may have over-clustered, so rerun with lower resolution.
+
+You determine distance metric for hierarchial clustering to use. Ex. could be 
+euclidian distance, or could be correlation in gene analysis.
+
+
+
+# End of Day
+Close project
+Brush console
+Clear environment
+
+For templates to save: files bottom right, more, export, download
